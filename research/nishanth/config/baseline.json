@@ -1,0 +1,24 @@
+{
+    "modelID": "__version.0.1__",
+    "sample_test": false,
+    "info":{
+
+    },
+    "dataset": {
+        "status": false,
+        "dataset_name": "COCO2014",
+        "dataset_path": "/home/nishanth/Desktop/RnD/deep-research-on-ai/data/COCO2014.sh",
+        "descriotion": "download the dataset by changing status, true"
+    },
+    "preparation": {
+        "status": true,
+        "model_name": "roberta-large-openai-detector",
+        "description": "convert a sentence to word embeddings"
+    },
+    "image_encoder": {
+        "model_name": "resnet18"
+    },
+    "generative_retrival": {
+        "model_name": "lstm"
+    }
+}
