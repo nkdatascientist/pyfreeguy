@@ -57,31 +57,27 @@ def sample_test():
     print("text encoder", text_output.last_hidden_state.shape)
     print("Text encoder", text_output.pooler_output.shape)
 
-    model = GPT2Model.from_pretrained("gpt2")
-
     exit()
 
 def background_check(args, device):
 
     # Download dataset
-    if args.dataset["status"]:
-        dataset = Dataset_Preparation(args)
+    Dataset_Preparation(args)()
     print("===> Dataset Preparation Completed...!!!")
     
-    # convert dataset to cache file
-    if args.preparation["status"]:
-        txt_model = TextEncoder(args)
-        dataset(txt_model, device)
-        del txt_model
 
 def main(args, device):
 
-    background_check(args, device)
     if args.sample_test:
         sample_test() 
 
+    background_check(args, device)
+    # convert dataset to cache file
+    txt_model = TextEncoder(args)
+    train_dataloader, val_dataloader = build_dataloader(args, txt_model)
+    del txt_model
+
     model = build_model(args)
-    train_dataloader, val_dataloader = build_dataloader(args)
     if args.training:
         train(model, train_dataloader, val_dataloader, device)
 

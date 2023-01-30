@@ -12,15 +12,15 @@ class VisualBot(torch.nn.Module):
         self.decoder = decoder
         
     def forward(self, img: torch.Tensor, txt, annotation=None):
-        if not self.encoder:
+        if not isinstance(self.encoder, torch.nn.Module):
             output = self.decoder(img, txt, annotation)
             return output
-        if not self.decoder:
+        if not isinstance(self.decoder, torch.nn.Module):
             logits = self.encoder(img)
             return logits
         logits = self.encoder(img)
         output = self.decoder(logits, txt, annotation)
-        return output
+        return logits, output
 
 def build_model(args):
     if args.image_encoder:

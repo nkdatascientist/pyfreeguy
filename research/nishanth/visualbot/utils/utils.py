@@ -13,14 +13,15 @@ def dataset_verification(args):
 class Dataset_Preparation:
     def __init__(self, args):
         self.args = args
-        self.dataset_preparation()
+        if args.dataset["status"]:
+            self.dataset_preparation()
 
     def dataset_preparation(self):
         if self.args.dataset["dataset_name"] == "COCO2014":
             script_path = self.args.dataset["dataset_path"]
             download_coco_dataset(script_path)
 
-    def __call__(self, txt_model, device):
+    def __call__(self):
         assert dataset_verification(self.args), "Dataset not exists"
         return
 

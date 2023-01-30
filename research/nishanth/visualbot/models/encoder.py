@@ -19,10 +19,10 @@ class TextEncoder(torch.nn.Module):
         super(TextEncoder, self).__init__()
         self.args = args
         self.model_name = self.args.generative_retrival["model_name"]
-        if self.model_name in ["roberta-large-openai-detector"]:
+        if self.model_name in ["roberta-base-openai-detector", "roberta-large-openai-detector"]:
             self.text_tokenizer = RobertaTokenizer.from_pretrained(self.model_name)
             self.text_model = RobertaModel.from_pretrained(self.model_name)
-        elif self.model_name in ["bert-base-uncased"]:
+        elif self.model_name in ["bert-base-uncased", "bert-large-uncased"]:
             # https://huggingface.co/bert-base-uncased
             self.text_tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             self.text_model = AutoModel.from_pretrained(self.model_name)
@@ -32,4 +32,5 @@ class TextEncoder(torch.nn.Module):
     def forward(self, txt: str):
         token = self.text_tokenizer(txt, return_tensors='pt')
         return self.text_model(**token), token
+
         
