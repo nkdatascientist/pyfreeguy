@@ -1,5 +1,5 @@
 
-from visualbot.models import TextEncoder, build_model
+from visualbot.models import TextEncoder, build_model, ImageEncoder
 from visualbot.utils import Dataset_Preparation
 from visualbot.data import build_dataloader
 
@@ -62,9 +62,13 @@ def sample_test():
 def background_check(args, device):
 
     # Download dataset
-    Dataset_Preparation(args)()
-    print("===> Dataset Preparation Completed...!!!")
-    
+    # Dataset_Preparation(args)()
+
+    # convert dataset to cache file
+    img_encoder = ImageEncoder(args)
+    img_encoder = img_encoder.to(device)
+    txt_model = TextEncoder(args, device)
+    build_dataloader(args, img_encoder, txt_model, device)
 
 def main(args, device):
 
@@ -72,10 +76,7 @@ def main(args, device):
         sample_test() 
 
     background_check(args, device)
-    # convert dataset to cache file
-    txt_model = TextEncoder(args)
-    train_dataloader, val_dataloader = build_dataloader(args, txt_model)
-    del txt_model
+    train_dataloader, val_dataloader = build_dataloader(args)
 
     model = build_model(args)
     if args.training:

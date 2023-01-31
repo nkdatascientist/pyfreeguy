@@ -13,8 +13,7 @@ def dataset_verification(args):
 class Dataset_Preparation:
     def __init__(self, args):
         self.args = args
-        if args.dataset["status"]:
-            self.dataset_preparation()
+        self.dataset_preparation()
 
     def dataset_preparation(self):
         if self.args.dataset["dataset_name"] == "COCO2014":
@@ -23,5 +22,4 @@ class Dataset_Preparation:
 
     def __call__(self):
         assert dataset_verification(self.args), "Dataset not exists"
-        return
 
