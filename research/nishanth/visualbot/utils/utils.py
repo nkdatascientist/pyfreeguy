@@ -17,7 +17,7 @@ class Dataset_Preparation:
 
     def dataset_preparation(self):
         if self.args.dataset["dataset_name"] == "COCO2014":
-            script_path = self.args.dataset["dataset_path"]
+            script_path = self.args.dataset["dataset_download_path"]
             download_coco_dataset(script_path)
 
     def __call__(self):

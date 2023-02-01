@@ -46,4 +46,3 @@ df_ $val_file_path $val_directory_path $val_path $val_url
 df_ $annotaion_file_path $annotaion_directory_path $annotations_path $annotations_url
 
 echo "successfully downloaded the coco dataset"
-cd ./research/nishanth/

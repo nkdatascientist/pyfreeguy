@@ -2,12 +2,13 @@
     "modelID": "__version.0.1__",
     "sample_test": false,
     "info":{
-
+        
     },
     "dataset": {
         "status": false,
         "dataset_name": "COCO2014",
-        "dataset_path": "/home/nishanth/Desktop/RnD/deep-research-on-ai/data/COCO2014.sh",
+        "dataset_path": "/home/nishanth/Desktop/RnD/deep-research-on-ai/data/COCO2014",
+        "dataset_download_path": "/home/nishanth/Desktop/RnD/deep-research-on-ai/data/COCO2014.sh",
         "descriotion": "download the dataset by changing status, true"
     },
     "preparation": {

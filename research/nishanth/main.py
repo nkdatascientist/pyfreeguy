@@ -62,13 +62,16 @@ def sample_test():
 def background_check(args, device):
 
     # Download dataset
-    # Dataset_Preparation(args)()
-
+    if args.dataset["status"]:
+        Dataset_Preparation(args)()
+    
     # convert dataset to cache file
-    img_encoder = ImageEncoder(args)
-    img_encoder = img_encoder.to(device)
-    txt_model = TextEncoder(args, device)
-    build_dataloader(args, img_encoder, txt_model, device)
+    cache_path = "{}/cache".format(args.dataset["dataset_path"])
+    if os.path.exists(cache_path):
+        img_encoder = ImageEncoder(args)
+        img_encoder = img_encoder.to(device)
+        txt_model = TextEncoder(args, device)
+        build_dataloader(args, bc=True, image_model=img_encoder, txt_model=txt_model, device=device)
 
 def main(args, device):
 
