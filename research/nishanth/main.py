@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    parser.add_argument('--config',           default="./config/baseline.json",             help='Config Path')    
+    parser.add_argument('--config', default="./visualbot/config/baseline.json", help='Config Path')    
     args = parser.parse_args()
 
     args = helper(args)
