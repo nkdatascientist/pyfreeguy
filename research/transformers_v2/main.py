@@ -57,11 +57,12 @@
 # Single Input for FC layer
 import torch
 inputs = torch.tensor([
-    # [1., 2., 3.],
-    [10., 21., 343.],
+    [1., 2., 3.],
+    [1., 21., 3.],
+    [10., 1., -4.],
 ])
 in_channel = 3
-out_channel = 6
+out_channel = 3
 lin_fc = torch.nn.Linear(in_channel, out_channel)
 conv = torch.nn.Conv1d(in_channel, out_channel, kernel_size=1)
 
@@ -78,7 +79,7 @@ conv.bias.data = torch.ones(out_channel)
 print("Input:",inputs)
 print("Input shape:",inputs.shape)
 print("FC Out: ",lin_fc(inputs))
-print("Conv Out: ",conv(inputs.view(3,1)))
+print("Conv Out: ",conv(inputs.view(3,3,1)))
 
 # input = torch.rand(1, 2048, 65)
 # conv = torch.nn.Conv1d(2048, 2048, kernel_size=1)
