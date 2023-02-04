@@ -3,6 +3,7 @@
 research/
 COCO2014/
 .vscode/
+runs/
 
 # file's
 *.txt

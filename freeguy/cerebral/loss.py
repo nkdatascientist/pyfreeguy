@@ -9,7 +9,7 @@ class GetLoss:
             "CrossEntropyLoss": crossentropyloss
         }
 
-    def __call__(self, args, optimizer:torch.nn.Module):
+    def __call__(self, args):
         return self.Loss_name_list[args.loss["name"]](
             args
         )

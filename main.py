@@ -1,11 +1,14 @@
 
 """
-# 1 - fp32 pipeline setup 
-#       1. Fp16 
-#       2. 
+# !-TODO
+# 1 - fp32 pipeline setup
+#     1. Fp16
+#     2. Quantization
+#          - Int4A4 or Int4A8
+#          - FP16
 # 2 - clip training
 # 3 - fc -> conv
-# 4 - new scheduler 
+# 4 - new scheduler
 # 5 - innovation
 """
 
@@ -17,43 +20,75 @@ from freeguy.dataloader import GetDataloader
 from freeguy.models.encoder import Resnet18
 from freeguy.cerebral.loss import GetLoss
 from argparse import Namespace
-import json, argparse
-import torch
+import json, argparse, torch
+from tqdm import tqdm
 
-def main(args):
 
-    model = Resnet18()
-    criterion = GetLoss(args)
-    optimizer = GetOptimizer()(args, model)
-    scheduler = GetScheduler()(optimizer)
-    summarywriter = GetSummaryWriter()
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    train_dataloader, val_dataloader = GetDataloader(args)
+def train(model, train_dataloader, val_dataloader, criterion, device, optimizer,
+         summarywriter: GetSummaryWriter, scheduler, args):
 
-    epochs = epochs + 1
-    for epoch in range(1, epochs):
+    args.epochs = args.epochs + 1
+    for epoch in range(1, args.epochs):
         train_loss, train_top1, train_top5 = train_model(
             epoch, model, train_dataloader, criterion, device, optimizer, summarywriter
         )
+
         # Training Loss
-        summarywriter.insert("/training/top1", train_top1, epoch)
-        summarywriter.insert("/training/top5", train_top5, epoch)
-        summarywriter.insert("/training/loss", train_loss, epoch)
+        summarywriter.insert("training/top1", train_top1, epoch)
+        summarywriter.insert("training/top5", train_top5, epoch)
+        summarywriter.insert("training/avg_loss", train_loss, epoch)
 
         val_loss, val_top1, val_top5 = validation_model(
-            epoch, model, val_dataloader, criterion, device
+            model, val_dataloader, criterion, device 
         )
+
         # Validation Loss
-        summarywriter.insert("/validation/top1", val_top1, epoch)
-        summarywriter.insert("/validation/top5", val_top5, epoch)
-        summarywriter.insert("/validation/loss", val_loss, epoch)
+        summarywriter.insert("validation/top1", val_top1, epoch)
+        summarywriter.insert("validation/top5", val_top5, epoch)
+        summarywriter.insert("validation/loss", val_loss, epoch)
         
         scheduler.step()
+        summarywriter.export()
+    
+def main(args):
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print("device: ", device)
+
+    model = Resnet18().to(device)
+    print("Model Build Successfully")
+    
+    criterion = GetLoss()(args)
+    print("Loaded Loss Function Successfully")
+
+    train_dataloader, val_dataloader = GetDataloader()(args)
+    print("Loaded Data Loader Successfully")
+    
+
+    if args.train_model:
+        optimizer = GetOptimizer()(args, model)
+        print("Loaded Optimizer Successfully")
+
+        scheduler = GetScheduler()(args, optimizer)
+        print("Loaded Scheduler Successfully")
+
+        summarywriter = GetSummaryWriter(args)
+        print("Loaded Summary Writer Successfully")
+
+        train(
+            model, train_dataloader, val_dataloader, criterion, device, optimizer, summarywriter, scheduler, args
+        )
+
+    validation_model(
+        model, val_dataloader, criterion, device
+    )
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser('Resnet fine-tuning')
     parser.add_argument('--config', default=None, type=str, help='config path')
+    parser.add_argument('--train_model', action='store_true', help='jit trace', default=False)
+
     args = parser.parse_args()
 
     temp_args = vars(args)
@@ -64,5 +99,5 @@ if __name__ == '__main__':
         temp_args[item] = data[item]
 
     # https://stackoverflow.com/questions/2597278/python-load-variables-in-a-dict-into-namespace
-    temp_args = Namespace(**args)
+    temp_args = Namespace(**temp_args)
     main(args)

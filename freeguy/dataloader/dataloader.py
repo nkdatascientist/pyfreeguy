@@ -2,10 +2,10 @@ from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
 from torchvision import transforms 
 from freeguy.transforms import GetTransforms
-import torch
+import torch, os
 
 # https://pytorch.org/vision/main/generated/torchvision.datasets.ImageFolder.html
-def imagenet_dataloader(args, train_transform, val_transform):
+def imagenet_dataloader(args, train_transform=None, val_transform=None):
     """
     "root": "", 
     "dataloader":{
@@ -29,19 +29,16 @@ def imagenet_dataloader(args, train_transform, val_transform):
         }
     }
     """
-    train_transform = None
-    val_transform = None
-    if args.dataloader["train"]["transforms"]: 
-        train_transform = GetTransforms(args, "train")
-    if args.dataloader["val"]["transforms"]: 
-        val_transform = GetTransforms(args, "val")
+
+    train_transform = GetTransforms()(args, "train")
+    val_transform = GetTransforms()(args, "val")
 
     train_dataset = ImageFolder(
-        root=args.root,
+        root=os.path.join(args.root, "train"),
         transform=train_transform
     )
     val_dataset = ImageFolder(
-        root=args.root,
+        root=os.path.join(args.root, "val"),
         transform=val_transform
     )
 
@@ -75,7 +72,7 @@ class GetDataloader:
             "imagenet": imagenet_dataloader
         }
 
-    def __call__(self, args, dataloader_name:str):
-        return self.dataloader_name_list[dataloader_name](
+    def __call__(self, args):
+        return self.dataloader_name_list[args.dataloader_name](
             args
         )

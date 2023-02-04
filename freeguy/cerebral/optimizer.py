@@ -12,10 +12,11 @@ def sgd_optimizer(args, model):
     """
     optimizer = torch.optim.SGD(
         params=model.parameters(),
-        lr=args.sgd["lr"],
-        momentum=args.sgd["momentum"],
-        weight_decay=args.sgd["weight_decay"]
+        lr=args.optimizer["lr"],
+        momentum=args.optimizer["momentum"],
+        weight_decay=args.optimizer["weight_decay"]
     )
+    learning_rate = optimizer.param_groups[0]['lr']
     return optimizer
 
 class GetOptimizer:
