@@ -47,7 +47,10 @@ def train(model, train_dataloader, val_dataloader, criterion, device, optimizer,
         summarywriter.insert("validation/top5", val_top5, epoch)
         summarywriter.insert("validation/loss", val_loss, epoch)
         
-        scheduler.step()
+        if args.scheduler["name"] == "ReduceLROnPlateau":
+            scheduler.step(f"{train_loss:.4f}")
+        else:
+            scheduler.step()
         summarywriter.export()
     
 def main(args):
