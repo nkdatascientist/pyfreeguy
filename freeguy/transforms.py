@@ -1,7 +1,6 @@
-import torch 
 from torchvision import transforms
 
-def resnet_imagenet_transforms(args, mode):
+def resnet_imagenet_transforms(args, mode: str):
     if mode == "train":
         train_transforms = transforms.Compose([
                 transforms.RandomResizedCrop(args.image_size),
@@ -26,7 +25,7 @@ def resnet_imagenet_transforms(args, mode):
 class GetTransforms:
     def __init__(self):
         self.transforms_name_list = {
-            "resnet_imagenet_transforms": resnet_imagenet_transforms
+            "resnet_imagenet_transforms": resnet_imagenet_transforms,
         }
 
     def __call__(self, args, mode:str):

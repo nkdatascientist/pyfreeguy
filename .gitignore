@@ -1,9 +1,8 @@
 
 # folder's
 research/
-COCO2014/
 .vscode/
-runs/
+lightning_logs/
 
 # file's
 *.txt

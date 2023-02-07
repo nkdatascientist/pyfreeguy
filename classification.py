@@ -13,15 +13,14 @@
 """
 
 from freeguy.cerebral.classification import train_model, validation_model
-from freeguy.cerebral.tensorboard import GetSummaryWriter
-from freeguy.cerebral.scheduler import GetScheduler
-from freeguy.cerebral.optimizer import GetOptimizer
+from freeguy.tensorboard import GetSummaryWriter
+from freeguy.scheduler.scheduler import GetScheduler
+from freeguy.optimizer.optimizer import GetOptimizer
 from freeguy.dataloader import GetDataloader
 from freeguy.models.encoder import Resnet18
-from freeguy.cerebral.loss import GetLoss
+from freeguy.loss import GetLoss
 from argparse import Namespace
 import json, argparse, torch
-from tqdm import tqdm
 
 
 def train(model, train_dataloader, val_dataloader, criterion, device, optimizer,
@@ -48,7 +47,7 @@ def train(model, train_dataloader, val_dataloader, criterion, device, optimizer,
         summarywriter.insert("validation/loss", val_loss, epoch)
         
         if args.scheduler["name"] == "ReduceLROnPlateau":
-            scheduler.step(f"{train_loss:.4f}")
+            scheduler.step(f"{train_loss:.5f}")
         else:
             scheduler.step()
         summarywriter.export()
@@ -67,7 +66,6 @@ def main(args):
     train_dataloader, val_dataloader = GetDataloader()(args)
     print("Loaded Data Loader Successfully")
     
-
     if args.train_model:
         optimizer = GetOptimizer()(args, model)
         print("Loaded Optimizer Successfully")
@@ -82,15 +80,17 @@ def main(args):
             model, train_dataloader, val_dataloader, criterion, device, optimizer, summarywriter, scheduler, args
         )
 
-    validation_model(
-        model, val_dataloader, criterion, device
-    )
+    if args.val_model:
+        validation_model(
+            model, val_dataloader, criterion, device
+        )
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser('Resnet fine-tuning')
+    parser = argparse.ArgumentParser('classification fine-tuning')
     parser.add_argument('--config', default=None, type=str, help='config path')
-    parser.add_argument('--train_model', action='store_true', help='jit trace', default=False)
+    parser.add_argument('--train_model', action='store_true', help='train model', default=False)
+    parser.add_argument('--val_model',   action='store_true', help='validate model', default=False)
 
     args = parser.parse_args()
 

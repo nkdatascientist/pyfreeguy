@@ -31,9 +31,9 @@ def train_model(epoch: int, model: torch.nn.Module, train_dataloader, criterion,
         if index % 100 == 99:
             lr = get_lr(optimizer)
             weight_decay = optimizer.defaults['weight_decay']
-            print(f"Epoch: {epoch} Iteration: [{index}/{len(train_dataloader)}] Top1: {top1.avg} Top5: {top5.avg} LR: {lr}, WD: {weight_decay} Loss: {loss.item()}")
+            print(f"Epoch: {epoch} Iteration: [{index}/{len(train_dataloader)}] Top1: {top1.avg} Top5: {top5.avg} LR: {lr} Loss: {running_loss.avg}")
             
-            summarywriter.insert("training/loss", loss.item(), epoch * index)
+            summarywriter.insert("training/loss", running_loss.avg, epoch * index)
             summarywriter.insert("optimizer/learning_rate", lr, epoch * index)
             summarywriter.insert("optimizer/weight_decay", weight_decay, epoch * index)
             running_loss.reset()
