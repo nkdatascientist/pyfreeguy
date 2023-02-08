@@ -1,6 +1,6 @@
 from torch.utils.tensorboard import SummaryWriter
 from tensorboard.backend.event_processing import event_accumulator
-import torch, os, json
+import os, json
 
 class GetSummaryWriter:
     """
@@ -55,6 +55,7 @@ class GetSummaryWriter:
                 pass
                 # print(f"File {filename} already exists.")
 
-            if not hparam_file and bool(self.data): # if its not a hparam file and there is something in the self.data -> dump it
+            # if its not a hparam file and there is something in the self.data -> dump it
+            if not hparam_file and bool(self.data): 
                 with open(f'{filename}', "w") as f:
                     json.dump(self.data, f)

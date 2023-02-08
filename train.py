@@ -4,29 +4,27 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from pytorch_lightning import LightningModule, Trainer
-from typing import Any
+from pytorch_lightning.profilers import PyTorchProfiler
 
-from freeguy.cerebral.classification import train_model, validation_model
+from freeguy.cerebral.classification import validation_model
 from freeguy.optimizer.optimizer import GetOptimizer
 from freeguy.scheduler.scheduler import GetScheduler
+from freeguy.utils import AverageMeter, accuracy
 from freeguy.dataloader import GetDataloader
 from freeguy.models.encoder import Resnet18
-from freeguy.utils import AverageMeter, accuracy
 from freeguy.loss import GetLoss
 
-
 class TrainClassificalModel(LightningModule):
-    def __init__(self, config: dict, model: torch.nn.Module,
-            val_dl: torch.nn.Module, criterion: torch.nn.Module,
-            optim: torch.nn.Module, scheduler=None):
+    def __init__(self, 
+                config: dict, 
+                model: torch.nn.Module, criterion: torch.nn.Module,
+                optim: torch.nn.Module, scheduler=None
+            ):
         super().__init__()
 
-        self.config = config
-        self.model = model
-        self.val_dl = val_dl
-        self.scheduler = scheduler
         self.criterion = criterion
-        self.optim = optim
+        self.config, self.model = config, model
+        self.optim, self.scheduler = optim , scheduler
         
         self.train_loss = AverageMeter("Train_Loss", ":6.6f")
         self.train_top1 = AverageMeter("Top@1", ":6.2f")
@@ -40,20 +38,28 @@ class TrainClassificalModel(LightningModule):
         return self.model(img)
     
     def configure_optimizers(self):
-        return self.optim
+        return {
+            'optimizer': self.optim,
+            # 'lr_scheduler': self.scheduler,
+            # 'monitor': 'vloss'
+        }
 
     def training_step(self, train_batch, train_batch_idx):
         img, labels = train_batch 
+        
         logits = self(img)
-        train_loss = self.criterion(logits, labels)
+        tloss = self.criterion(logits, labels)
         acc1, acc5 = accuracy(logits, labels, topk=(1, 5))
         
         self.train_top1.update(acc1[0].item(), labels.size(0))
         self.train_top5.update(acc5[0].item(), labels.size(0))
-        self.train_loss.update(train_loss.item(), labels.size(0))
+        self.train_loss.update(tloss.item(), labels.size(0))
         
-        self.log('train_loss', train_loss.item(), on_step=True, prog_bar=True, logger=True)
-        return train_loss
+        cur_lr = self.trainer.optimizers[0].param_groups[0]['lr']
+        self.log("optimizer/lr", cur_lr, prog_bar=True, on_step=True)
+        self.log('train/loss_step', tloss, on_step=True, prog_bar=True, logger=True)
+        
+        return tloss
 
     def validation_step(self, val_batch, val_batch_idx):
         img, labels = val_batch 
@@ -65,25 +71,24 @@ class TrainClassificalModel(LightningModule):
         self.val_top5.update(acc5[0].item(), labels.size(0))
         self.val_loss.update(vloss.item(), labels.size(0))
         
-        self.log('val_loss',vloss.item(), on_step=True, prog_bar=True, logger=True)
+        self.log('val/loss_step', vloss, on_step=True, prog_bar=True, logger=True)
         return vloss
 
     def validation_epoch_end(self, outputs):
         self.log('val/top1', self.val_top1.avg)
         self.log('val/top5', self.val_top5.avg)
-        self.log('val/loss', self.val_loss.avg)
-        
+        self.log('val/loss_epoch', self.val_loss.avg)
+        self.val_top1.reset(); self.val_top5.reset(); self.val_loss.reset()
 
     def training_epoch_end(self, outputs):
-        self.log('train/top1', self.val_top1.avg)
-        self.log('train/top5', self.val_top5.avg)
-        self.log('train/loss', self.val_loss.avg)
+        self.log('train/top1', self.train_top1.avg)
+        self.log('train/top5', self.train_top5.avg)
+        self.log('train/loss_epoch', self.train_loss.avg)
+        self.train_top1.reset(); self.train_top5.reset(); self.train_loss.reset()
 
 def main(args):
 
     model = Resnet18()
-    # from torchvision.models import resnet18
-    # model = resnet18(pretrained=True)
     optim = GetOptimizer()(args, model)
     criterion =  GetLoss()(args)
     scheduler = GetScheduler()(args, optim)
@@ -92,25 +97,21 @@ def main(args):
     model.to(device)
 
     if args.train:
-        from pytorch_lightning.profilers import PyTorchProfiler
 
         profiler = PyTorchProfiler()
         model = TrainClassificalModel(
             config = args,
-            model = model,
-            val_dl = val_dl,
-            scheduler = scheduler,
-            criterion = criterion,
-            optim = optim
+            model = model, scheduler = scheduler,
+            criterion = criterion, optim = optim
         )
 
         # https://pytorch-lightning.readthedocs.io/en/stable/tuning/profiler_intermediate.html
         worker = Trainer(
-            profiler=profiler,
-            accelerator="gpu",
-            devices=1,
-            precision=16
+            max_epochs=args.epochs,
+            accelerator="gpu", devices=1, precision=16, 
+            # profiler=profiler,
         )
+        
         worker.fit(
             model, 
             train_dataloaders=train_dl, 

@@ -41,6 +41,9 @@ def imagenet_dataloader(args, train_transform=None, val_transform=None):
         transform=val_transform
     )
 
+    from torch.utils.data import Subset
+    train_dataset, val_dataset = Subset(train_dataset, list(range(100))), Subset(val_dataset, list(range(100)))
+    
     train_dataloader = DataLoader(
         train_dataset,
         batch_size=args.dataloader["train"]["batch_size"],
