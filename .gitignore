@@ -1,3 +1,7 @@
 
 # folder's
 research/
+
+
+# files
+*.pyc
