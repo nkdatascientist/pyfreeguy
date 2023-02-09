@@ -1,14 +1,11 @@
 
 # folder's
 COCO2014/
-
-# file's
 research/
 .vscode/
-lightning_logs/
+logs/
 
 # file's
-*.txt
 *.jpg
 *.jpeg
 *.png

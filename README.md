@@ -44,6 +44,6 @@ Any discoveries you make through your contributions are solely yours, with no ob
 # Contact
 For FreeGuy bugs and feature requests please visit [GitHub Issues](https://github.com/nkdatascientist/freeguy/issues).
 
-## License
+# License
 
   GNU General Public License v3.0 for more info [LICENSE](https://github.com/nkdatascientist/deep-research-on-ai/blob/4325ef47cae286012be49066ef1fe184c1a7a845/LICENSE)
