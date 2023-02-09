@@ -9,32 +9,32 @@ This GitHub repository showcases research on multimodel machine learning, explor
 
 # Table of contents
 
-- ### [FreeGuy](#freeguy)
-  - ### [Prerequisites](#prerequisites)
-  - ### [Installation](#installation)
-  - ### [Available Models](#available-models)
-  - ### [Contributing](#contributing)
-  - ### [Versioning](#versioning)
-  - ### [License](#license)
+- [FreeGuy](#freeguy)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Available Models](#available-models)
+  - [Contributing](#contributing)
+  - [Versioning](#versioning)
+  - [License](#license)
 
 # Prerequisites
 
-### Basic packages need to be installed before you start exploring
+Basic packages need to be installed before you start exploring
 ```sh
 bash run.sh
 ```
 
 # Available Models
-- ## In Computer Vision:
-    - ### [Resnet](/home/nishanth/Desktop/RnD/deep-research-on-ai/examples/resnet/README.md)
-    - ### [Visual Transformer](/home/nishanth/Desktop/RnD/deep-research-on-ai/examples/visual_transformers/README.md)
+- In Computer Vision:
+    - [Resnet](/home/nishanth/Desktop/RnD/deep-research-on-ai/examples/resnet/README.md)
+    - [Visual Transformer](/home/nishanth/Desktop/RnD/deep-research-on-ai/examples/visual_transformers/README.md)
 
 - ## Quantization
-    - ### In Pipeline
+    - In Pipeline
 
 # Model architectures
 
-1. ### **[Resnet](#)**(from Microsoft Research) released with the paper [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385) by Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun.
+1. **[Resnet](#)**(from Microsoft Research) released with the paper [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385) by Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun.
 
 # Contributing
 
