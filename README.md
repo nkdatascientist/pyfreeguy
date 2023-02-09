@@ -28,8 +28,7 @@ bash run.sh
 - In Computer Vision:
     - [Resnet](/home/nishanth/Desktop/RnD/deep-research-on-ai/examples/resnet/README.md)
     - [Visual Transformer](/home/nishanth/Desktop/RnD/deep-research-on-ai/examples/visual_transformers/README.md)
-
-- ## Quantization
+- Quantization
     - In Pipeline
 
 # Model architectures
