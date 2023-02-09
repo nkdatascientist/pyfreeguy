@@ -10,7 +10,7 @@ Image is converted to patch
 
 
 
-# * Dropout Layer
+#* Dropout Layer
 import torch 
 module = torch.nn.Dropout(0.5)
 inp = torch.ones(3,3)
@@ -19,7 +19,7 @@ midule(inp) # ! the values will keep on changing for every time
             [0,2,1],
             [2,0,0]])
 
-# * Fully Connected Layer
+#* Fully Connected Layer
 >>> import torch
 >>> fc = torch.nn.Linear(10, 20)
 >>> inp2d = torch.nn.randn(40, 10)
@@ -38,7 +38,7 @@ midule(inp) # ! the values will keep on changing for every time
 >>> fc(input7d).shape
 >>> torch.Size([40, 2, 3, 4, 5, 6, 20])
 
-# * Layer Normalization
+#* Layer Normalization
 >>> import torch
 >>> inp = torch.tensor([[0.,4.], [-1,7], [3,5]])
 >>> n_samples, n_feature = inp.shape
@@ -69,7 +69,7 @@ class PatchEmbed(torch.nn.Module):
                so that we can cover image or ignore overlap
             2. kernel size will falls under the patch size  
     """
-    def __init__(self, img_size:int, patch_size:int, in_channel:int, embed_dim=768):
+    def __init__(self, img_size:int, patch_size:int, in_channels:int, embed_dim=768):
         super().__init__()
 
         self.img_size = img_size
@@ -78,10 +78,10 @@ class PatchEmbed(torch.nn.Module):
         self.n_patches = (img_size // patch_size) ** 2
 
         self.proj = torch.nn.Conv2d(
-            in_channel,
+            in_channels,
             embed_dim,
-            patch_size, # ! kernel 
-            patch_size  # ! stride 
+            kernel_size= patch_size, # ! kernel 
+            stride=patch_size  # ! stride 
         )
 
     def forward(self, x: torch.Tensor ):
@@ -90,13 +90,13 @@ class PatchEmbed(torch.nn.Module):
 
         """
         x = self.proj(x)   # ! 4D tensor 
-        x = x.flattern(2)    # ! we will take last two dimensions -> single dimension
+        x = x.flatten(2)    # ! we will take last two dimensions -> single dimension
         x = x.transpose(1,2) 
         return x
 
 class Attention(torch.nn.Module):
     """
-    # * https://data-science-blog.com/wp-content/uploads/2022/01/mha_img_original.png
+    #* https://data-science-blog.com/wp-content/uploads/2022/01/mha_img_original.png
     Attention Mechanism
 
     * Parameter 
@@ -120,13 +120,13 @@ class Attention(torch.nn.Module):
         super().__init__()
         self.n_heads = n_heads
         self.dim = dim
-        # * Reason : Set it up in this way is that once we concatenate all the attention heads 
-        # *          we'll get a new tensor that will have the same dim as the input   
+        #* Reason : Set it up in this way is that once we concatenate all the attention heads 
+        #*          we'll get a new tensor that will have the same dim as the input   
         self.head_dim = dim // n_heads #  define dim for each and every head 
         self.scale = self.head_dim ** -0.5 # Not to feed extreamely large values
 
-        self.qkv = torch.nn.Linear(dim, dim*3, bias=qkv_bias)
-        self.qkv_drop = torch.nn.Dropout(attn_p)
+        self.qkv = torch.nn.Linear(dim, dim * 3, bias=qkv_bias)
+        self.attn_drop = torch.nn.Dropout(attn_p)
         self.proj = torch.nn.Linear(dim, dim)
         self.proj_drop = torch.nn.Dropout(proj_p)
 
@@ -149,11 +149,12 @@ class Attention(torch.nn.Module):
         )   #  3, n_samples, n_heads, n_patches + 1, head_dim
         
         q, k, v = qkv[0], qkv[1], qkv[2]
-        k_t = k.transpose(-2,-1)
+        k_t = k.transpose(-2, -1)
         
         dp = ( q @ k_t ) * self.scale 
         attn = dp.softmax(dim=-1)  # we are doing the weighted average for descrite weighted average 
-        
+        attn = self.attn_drop(attn)
+
         weighted_avg = attn @ v
         weighted_avg = weighted_avg.transpose(1,2)
         weighted_avg = weighted_avg.flatten(2)
@@ -205,7 +206,6 @@ class TransformerBlock(torch.nn.Module):
         super().__init__()
 
         self.norm1 = torch.nn.LayerNorm(dim, eps=1e-6)
-        self.norm2 = torch.nn.LayerNorm(dim, eps=1e-6)
         self.atten = Attention(
             dim,
             n_heads=n_heads,
@@ -213,9 +213,10 @@ class TransformerBlock(torch.nn.Module):
             attn_p=attn_p,
             proj_p=proj_p
         )
+        self.norm2 = torch.nn.LayerNorm(dim, eps=1e-6)
         self.mlp = MLP(
-            in_features=dim
-            hidden_feature= int(dim * mlp_ratio)
+            in_features=dim,
+            hidden_feature= int(dim * mlp_ratio),
             out_features=dim
         )
 
@@ -226,11 +227,11 @@ class TransformerBlock(torch.nn.Module):
         return x 
 
 
-class VisualTransoormer(torch.nn.Module):
+class VisualTransformer(torch.nn.Module):
     """ 
     Simplified Version of Vision Transofrmer
     
-    # * Parameter
+    #* Parameter
     img_size : int
     patch_size: int
     in_chans: int
@@ -242,7 +243,7 @@ class VisualTransoormer(torch.nn.Module):
     qkv_ratio: bool
     p, attn_p: float    # Dropout ratio
     
-    # * Attribute
+    #* Attribute
     patch_embed :
     cls_token   :
     pos_emb     :
@@ -254,15 +255,69 @@ class VisualTransoormer(torch.nn.Module):
     def __init__(self, 
         img_size=384,
         patch_size=16,
-        n_classes=1000,
         in_channels=3,
+        n_classes=1000,
         embed_dim=768,
         depth=12,
         n_heads=12,
-        mlp_ratio=4,
+        mlp_ratio=4.,
         qkv_bias=True, 
         p=0., 
-        atnn_p=0.
+        attn_p=0.
     ):
         super().__init__()
 
+        self.patch_embed = PatchEmbed(
+            img_size=img_size,
+            patch_size=patch_size,
+            embed_dim=embed_dim,
+            in_channels=in_channels
+        )
+        #! cls_token: 
+        self.cls_token = torch.nn.Parameter(torch.zeros(1, 1, embed_dim))
+
+        # first index is for convenience(that's why we are adding +1 for patch_size)
+        # assigning the number of patch to the position embedding as the input feature
+        self.pos_embed = torch.nn.Parameter( 
+            torch.zeros(1, 1 + self.patch_embed.n_patches, embed_dim)
+        )
+        self.drop_out = torch.nn.Dropout(p=p)
+
+        self.blocks = torch.nn.ModuleList(
+            [
+                TransformerBlock(
+                    dim=embed_dim,
+                    n_heads=n_heads,
+                    mlp_ratio=mlp_ratio,
+                    qkv_bias=qkv_bias,
+                    proj_p=p,
+                    attn_p=attn_p
+                ) for _ in range(depth)
+            ]
+        )
+
+        #! => eps: 
+        self.norm = torch.nn.LayerNorm(embed_dim, eps=1e-6)
+        self.head = torch.nn.Linear(embed_dim, n_classes)
+
+    def forward(self, x: torch.Tensor):
+        n_samples = x.shape[0]
+        x = self.patch_embed(x)
+        cls_token = self.cls_token.expand(
+            n_samples, -1, -1
+        )
+        x = torch.cat(
+            (cls_token, x), dim=1
+        )
+
+        # torch take care the boardcasting
+        x = x + self.pos_embed
+        x = self.drop_out(x)
+
+        for block in self.blocks:
+            x = block(x)
+        
+        x = self.norm(x)
+        cls_token_final = x[:,0] # Just the CLS token 
+        x = self.head(cls_token_final)
+        return x
