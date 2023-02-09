@@ -1,0 +1,44 @@
+{   
+
+    "image_size": 256,
+    "epochs": 100,
+    "root": "/media/nishanth/Nishanth M/Dataset/sub_imagenet/imagenet-mini/", 
+    "dataloader_name":"imagenet",
+    "dataloader":{
+        "transforms": {
+            "name": "resnet_imagenet_transforms"
+        },
+        "train": {
+            "batch_size": 64,
+            "shuffle": true,
+            "num_workers": 6,
+            "pin_memory": true,
+            "drop_last": false,
+            "persistent_workers": true
+        },
+        "val": {
+            "batch_size": 16,
+            "shuffle": false,
+            "num_workers": 4,
+            "pin_memory": true,
+            "drop_last": false,
+            "persistent_workers": true
+        }
+    },
+    "loss":{
+        "name": "CrossEntropyLoss"
+    },
+    "optimizer" : {
+        "name": "sgd",
+        "lr": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 0.00005
+    },
+    "scheduler" : {
+        "name": "ReduceLROnPlateau"
+    },
+    "summary":{
+        "name": "resnet18_baseline_ReduceLROnPlateau",
+        "log_dir":"./runs"
+    }
+}

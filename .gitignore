@@ -1,7 +1,15 @@
 
 # folder's
+COCO2014/
+
+# file's
 research/
+.vscode/
+lightning_logs/
 
-
-# files
+# file's
+*.txt
+*.jpg
+*.jpeg
+*.png
 *.pyc
