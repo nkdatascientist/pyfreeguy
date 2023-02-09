@@ -35,7 +35,7 @@ bash run.sh
 
 1. **[Resnet](#)**(from Microsoft Research) released with the paper [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385) by Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun.
 
-# Contributing
+# Contribut
 
 We welcome contributions to this repository! Please check the issues page and read our contributing guidelines before starting. Submit a pull request with your changes for review. Thank you for making this project better!
 
